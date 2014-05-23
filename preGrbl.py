@@ -38,12 +38,13 @@
 
 """
 import re
+import sys
 from math import *
 from copy import *
 
 # -= SETTINGS =-
-filein = 'test.gcode'   # Input file name
-fileout = 'grbl.gcode'  # Output file name
+filein = ''   # Input file name
+fileout = ''  # Output file name
 ndigits_in = 4 # inch significant digits after '.'
 ndigits_mm = 2 # mm significant digits after '.'
 mm_per_arc_segment = 0.1 # mm per arc segment      
@@ -60,6 +61,19 @@ gc = { 'current_xyz' : [0,0,0],
        'inverse_feedrate_mode' : False, # G94
        'absolute_mode' : True}  # G90
 
+# Get command line options
+# TODO: implement all other command line switches and return them with opts[]
+# TODO: opts[0] = infile, opts[1] = outfile, opts[2] = ? ...
+def getopts():
+    opts=[]
+    if len(sys.argv) != 3:
+      print ('error - wrong arguments')
+      print ('usage: preGrbl infile outfile')
+      exit(1)
+    opts.append(sys.argv[1])
+    opts.append(sys.argv[2])
+    return opts
+
 def unit_conv(val) : # Converts value to mm
     if gc['inches_mode'] : val *= inch2mm
     return(val)
@@ -68,9 +82,12 @@ def fout_conv(val) : # Returns converted value as rounded string for output file
     if gc['inches_mode'] : return( str(round(val/inch2mm,ndigits_in)) )
     else : return( str(round(val,ndigits_mm)) )
 
+# Get command line options
+opts = getopts()
+
 # Open g-code file
-fin = open(filein,'r');
-fout = open(fileout,'w');
+fin = open(opts[0], 'r');
+fout = open(opts[1],'w');
 
 # Iterate through g-code file
 l_count = 0
