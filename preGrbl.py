@@ -39,12 +39,11 @@
 """
 import re
 import sys
+import os.path
 from math import *
 from copy import *
 
 # -= SETTINGS =-
-filein = ''   # Input file name
-fileout = ''  # Output file name
 ndigits_in = 4 # inch significant digits after '.'
 ndigits_mm = 2 # mm significant digits after '.'
 mm_per_arc_segment = 0.1 # mm per arc segment      
@@ -74,6 +73,18 @@ def getopts():
     opts.append(sys.argv[2])
     return opts
 
+def checkfiles(infile, outfile):
+   if not os.path.isfile(infile) or not os.access(infile, os.R_OK):
+      print ('Input file does not exist or no reading permission!')
+      exit(1)
+
+   if os.path.isfile(outfile):
+      print ('Output file already exists! Overwrite? y/n')
+      ch = sys.stdin.read(1)
+      if(ch == 'n'):
+         print ('Exiting...')
+         exit(1)
+
 def unit_conv(val) : # Converts value to mm
     if gc['inches_mode'] : val *= inch2mm
     return(val)
@@ -86,6 +97,7 @@ def fout_conv(val) : # Returns converted value as rounded string for output file
 opts = getopts()
 
 # Open g-code file
+checkfiles(opts[0], opts[1])
 fin = open(opts[0], 'r');
 fout = open(opts[1],'w');
 
